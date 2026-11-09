@@ -1,0 +1,68 @@
+@model InterviewsControl.Models.InterviewEvent
+
+@{
+    ViewData["Title"] = "新增面試關卡";
+}
+
+<div class="mb-4">
+    <h2>新增面試關卡</h2>
+    <!-- 利用由 Controller 傳來的 ViewBag 顯示目前正在為哪一間公司新增紀錄 -->
+    <h5 class="text-secondary"><i class="bi bi-building"></i> @ViewBag.JobInfo</h5>
+</div>
+<hr />
+
+<div class="row">
+    <div class="col-md-7">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- 亮點：隱藏欄位。將外鍵 JobApplicationId 偷偷綁定在表單中，使用者不會看到，但 POST 時會正確回傳給後端 -->
+            <input type="hidden" asp-for="JobApplicationId" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Round" class="control-label fw-bold"></label>
+                <input asp-for="Round" class="form-control" placeholder="例如：一面、技術上機考、HR 面談" />
+                <span asp-validation-for="Round" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 form-group mb-3">
+                    <label asp-for="InterviewDate" class="control-label fw-bold"></label>
+                    <!-- 加上 type="datetime-local" 讓瀏覽器彈出內建的日期時間選取器 -->
+                    <input asp-for="InterviewDate" class="form-control" type="datetime-local" />
+                    <span asp-validation-for="InterviewDate" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 form-group mb-3">
+                    <label asp-for="InterviewType" class="control-label fw-bold"></label>
+                    <input asp-for="InterviewType" class="form-control" placeholder="例如：實體、Teams、Google Meet" />
+                    <span asp-validation-for="InterviewType" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Interviewer" class="control-label fw-bold"></label>
+                <input asp-for="Interviewer" class="form-control" placeholder="面試官姓名或職稱 (選填)" />
+                <span asp-validation-for="Interviewer" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Feedback" class="control-label fw-bold"></label>
+                <textarea asp-for="Feedback" class="form-control" rows="5" placeholder="記錄考了哪些技術題、白板題、或是面試氣氛與心得..."></textarea>
+                <span asp-validation-for="Feedback" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="儲存面試紀錄" class="btn btn-primary" />
+                <!-- 亮點：取消按鈕的返回路徑，要指回 JobApplications Controller 的 Details 動作，並帶上原本的 ID -->
+                <a asp-controller="JobApplications" asp-action="Details" asp-route-id="@Model.JobApplicationId" class="btn btn-outline-secondary ms-2">取消並返回明細</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

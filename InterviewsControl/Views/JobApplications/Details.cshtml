@@ -1,0 +1,114 @@
+@model InterviewsControl.Models.JobApplication
+
+@{
+    ViewData["Title"] = "求職明細與面試紀錄";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>@Model.CompanyName - @Model.JobTitle</h2>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning">編輯主檔</a>
+        <a asp-action="Index" class="btn btn-secondary">返回列表</a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- 左側：求職主檔資訊 (Master) -->
+    <div class="col-md-5 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">職缺詳細資訊</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Status)</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-info text-dark">@Html.DisplayFor(model => model.Status)</span>
+                    </dd>
+
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.AppliedDate)</dt>
+                    <dd class="col-sm-8">@Model.AppliedDate.ToString("yyyy-MM-dd")</dd>
+
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.JobUrl)</dt>
+                    <dd class="col-sm-8">
+                        @if (!string.IsNullOrEmpty(Model.JobUrl))
+                        {
+                            <a href="@Model.JobUrl" target="_blank" class="text-decoration-none">前往 104 或招募網頁 ↗</a>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4 mt-3">@Html.DisplayNameFor(model => model.Notes)</dt>
+                    <dd class="col-sm-12">
+                        <!-- 利用 white-space: pre-wrap 保留輸入時的換行 -->
+                        <div class="p-2 bg-light border rounded" style="white-space: pre-wrap;">@Html.DisplayFor(model => model.Notes)</div>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右側：面試關卡紀錄 (Detail - One to Many) -->
+    <div class="col-md-7">
+        <div class="card shadow-sm border-primary">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">面試關卡紀錄 (Interview Events)</h5>
+
+                <!-- 亮點：帶入目前主檔的 ID，導向 InterviewEvents 的 Create 動作 -->
+                <a asp-controller="InterviewEvents" asp-action="Create" asp-route-jobApplicationId="@Model.Id" class="btn btn-sm btn-light text-primary fw-bold">
+                    + 新增關卡
+                </a>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.InterviewEvents != null && Model.InterviewEvents.Any())
+                {
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>關卡</th>
+                                <th>日期</th>
+                                <th>方式</th>
+                                <th>面試官</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 將面試關卡按照日期先後排序 -->
+                            @foreach (var evt in Model.InterviewEvents.OrderBy(e => e.InterviewDate))
+                            {
+                                <tr>
+                                    <td class="fw-bold text-primary">@evt.Round</td>
+                                    <td>@evt.InterviewDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>@evt.InterviewType</td>
+                                    <td>@evt.Interviewer</td>
+                                    <td>
+                                        <!-- 編輯個別面試關卡 -->
+                                        <a asp-controller="InterviewEvents" asp-action="Edit" asp-route-id="@evt.Id" class="btn btn-sm btn-outline-secondary">編輯</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="p-4 text-center text-muted">
+                        <p class="mb-0">目前還沒有建立任何面試關卡紀錄，點擊右上角新增。</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- 亮點：獨立的心得與考題紀錄區塊 -->
+        @if (Model.InterviewEvents != null && Model.InterviewEvents.Any(e => !string.IsNullOrEmpty(e.Feedback)))
+        {
+            <h5 class="mt-4 mb-3"><i class="bi bi-journal-code"></i> 面試心得與考題紀錄</h5>
+            @foreach (var evt in Model.InterviewEvents.Where(e => !string.IsNullOrEmpty(e.Feedback)).OrderBy(e => e.InterviewDate))
+            {
+                <div class="alert alert-secondary shadow-sm">
+                    <strong>@evt.Round (@evt.InterviewDate.ToString("MM/dd")):</strong>
+                    <p class="mb-0 mt-2" style="white-space: pre-wrap;">@evt.Feedback</p>
+                </div>
+            }
+        }
+    </div>
+</div>

@@ -1,8 +1,92 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model InterviewsControl.Models.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "求職戰情室";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="mb-4">
+    <h2 class="fw-bold"><i class="bi bi-speedometer2"></i> 求職戰情室 Dashboard</h2>
+    <p class="text-muted">掌握目前的投遞進度與即將到來的面試行程。</p>
+</div>
+
+<!-- 數據統計卡片區塊 -->
+<div class="row mb-5">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">總投遞數</h5>
+                <h1 class="display-4 fw-bold">@Model.TotalApplications</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-dark shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">面試進行中</h5>
+                <h1 class="display-4 fw-bold">@Model.InterviewingCount</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">成功錄取 (Offer)</h5>
+                <h1 class="display-4 fw-bold">@Model.OfferedCount</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-secondary text-white shadow-sm h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">未錄取 / 感謝信</h5>
+                <h1 class="display-4 fw-bold">@Model.RejectedCount</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 接下來的面試行程區塊 -->
+<div class="card shadow-sm border-info">
+    <div class="card-header bg-info text-dark fw-bold">
+        <i class="bi bi-calendar-event"></i> 近期面試行事曆 (即將到來)
+    </div>
+    <div class="card-body p-0">
+        @if (Model.UpcomingInterviews.Any())
+        {
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>日期時間</th>
+                        <th>公司名稱</th>
+                        <th>面試關卡</th>
+                        <th>面試方式</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var evt in Model.UpcomingInterviews)
+                    {
+                        <tr>
+                            <!-- 距離越近的面試，可以用文字顏色來突顯 -->
+                            <td class="fw-bold text-danger">@evt.InterviewDate.ToString("MM/dd (ddd) HH:mm")</td>
+                            <td class="fw-bold">@evt.JobApplication?.CompanyName</td>
+                            <td>@evt.Round</td>
+                            <td>@evt.InterviewType</td>
+                            <td>
+                                <a asp-controller="JobApplications" asp-action="Details" asp-route-id="@evt.JobApplicationId" class="btn btn-sm btn-outline-primary">
+                                    查看職缺
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="p-4 text-center text-muted">
+                目前沒有即將到來的面試行程，繼續努力投遞吧！
+            </div>
+        }
+    </div>
 </div>

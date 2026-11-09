@@ -1,0 +1,73 @@
+@model InterviewsControl.Models.JobApplication
+@using InterviewsControl.Models.Enums
+
+@{
+    ViewData["Title"] = "編輯求職紀錄";
+}
+
+<div class="mb-4">
+    <h2>編輯求職紀錄</h2>
+    <h5 class="text-secondary"><i class="bi bi-building"></i> @Model.CompanyName - @Model.JobTitle</h5>
+</div>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- 致命細節：編輯頁面絕對不能漏掉主鍵的隱藏欄位，否則 EF Core 會以為你要新增一筆新資料或直接報錯 -->
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group mb-3">
+                <label asp-for="CompanyName" class="control-label fw-bold"></label>
+                <input asp-for="CompanyName" class="form-control" />
+                <span asp-validation-for="CompanyName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="JobTitle" class="control-label fw-bold"></label>
+                <input asp-for="JobTitle" class="form-control" />
+                <span asp-validation-for="JobTitle" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="JobUrl" class="control-label fw-bold"></label>
+                <input asp-for="JobUrl" class="form-control" />
+                <span asp-validation-for="JobUrl" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 form-group mb-3">
+                    <label asp-for="AppliedDate" class="control-label fw-bold"></label>
+                    <input asp-for="AppliedDate" class="form-control" type="date" />
+                    <span asp-validation-for="AppliedDate" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 form-group mb-3">
+                    <label asp-for="Status" class="control-label fw-bold text-primary"></label>
+                    <!-- 這裡一樣透過 GetEnumSelectList 完美呈現有中文的下拉選單，並且會自動選取目前的狀態 -->
+                    <select asp-for="Status" asp-items="Html.GetEnumSelectList<ApplicationStatus>()" class="form-select border-primary shadow-sm"></select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Notes" class="control-label fw-bold"></label>
+                <textarea asp-for="Notes" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="儲存修改" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-outline-secondary ms-2">返回列表</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

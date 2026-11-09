@@ -1,0 +1,64 @@
+@model IEnumerable<InterviewsControl.Models.JobApplication>
+
+@{
+    ViewData["Title"] = "求職紀錄列表";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>求職紀錄列表</h2>
+    <a asp-action="Create" class="btn btn-primary">
+        新增求職紀錄
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover table-striped align-middle border shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.CompanyName)</th>
+                <th>@Html.DisplayNameFor(model => model.JobTitle)</th>
+                <th>@Html.DisplayNameFor(model => model.AppliedDate)</th>
+                <th>@Html.DisplayNameFor(model => model.Status)</th>
+                <th>管理操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="fw-bold">
+                        @Html.DisplayFor(modelItem => item.CompanyName)
+                    </td>
+                    <td>
+                        <!-- 亮點：如果有填寫職缺網址，就加上超連結並另開分頁 (target="_blank") -->
+                        @if (!string.IsNullOrEmpty(item.JobUrl))
+                        {
+                            <a href="@item.JobUrl" target="_blank" class="text-decoration-none">
+                                @Html.DisplayFor(modelItem => item.JobTitle)
+                            </a>
+                        }
+                        else
+                        {
+                            @Html.DisplayFor(modelItem => item.JobTitle)
+                        }
+                    </td>
+                    <td>
+                        <!-- 亮點：可以利用 String.Format 讓日期顯示更乾淨，例如 yyyy-MM-dd -->
+                        @item.AppliedDate.ToString("yyyy-MM-dd")
+                    </td>
+                    <td>
+                        <!-- ASP.NET Core 會自動讀取 Enum 上設定的 [Display(Name="...")] 中文 -->
+                        <span class="badge bg-secondary">
+                            @Html.DisplayFor(modelItem => item.Status)
+                        </span>
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">編輯</a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">明細</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">刪除</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

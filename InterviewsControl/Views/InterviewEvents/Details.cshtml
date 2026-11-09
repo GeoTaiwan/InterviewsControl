@@ -1,0 +1,66 @@
+@model InterviewsControl.Models.InterviewEvent
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>InterviewEvent</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.JobApplicationId)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.JobApplicationId)
+        </dd>
+    </dl>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Round)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Round)
+        </dd>
+    </dl>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.InterviewDate)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.InterviewDate)
+        </dd>
+    </dl>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.InterviewType)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.InterviewType)
+        </dd>
+    </dl>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Interviewer)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Interviewer)
+        </dd>
+    </dl>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Feedback)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Feedback)
+        </dd>
+    </dl>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.JobApplication)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.JobApplication)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
