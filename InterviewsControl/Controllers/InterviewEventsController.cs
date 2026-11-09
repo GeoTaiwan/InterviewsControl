@@ -1,11 +1,13 @@
 using InterviewsControl.Data;
 using InterviewsControl.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 // using InterviewsControl.Data; // 視你的 ApplicationDbContext 所在位置調整
 
 namespace InterviewsControl.Controllers
 {
+    [Authorize]
     public class InterviewEventsController : Controller
     {
         private readonly ApplicationDbContext _context;

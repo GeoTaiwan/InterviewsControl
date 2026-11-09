@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "求職戰情室";
+    // 亮點：在 Razor 區塊先計算出「已投遞/審查中」的剩餘數量，避免動到後端 Controller
+    int othersCount = Model.TotalApplications - Model.OfferedCount - Model.InterviewingCount - Model.RejectedCount;
 }
 
 <div class="mb-4">
@@ -9,8 +11,8 @@
     <p class="text-muted">掌握目前的投遞進度與即將到來的面試行程。</p>
 </div>
 
-<!-- 數據統計卡片區塊 -->
-<div class="row mb-5">
+<!-- 上方：四大數據統計卡片 -->
+<div class="row mb-4">
     <div class="col-md-3 mb-3">
         <div class="card bg-primary text-white shadow-sm h-100">
             <div class="card-body text-center">
@@ -45,48 +47,121 @@
     </div>
 </div>
 
-<!-- 接下來的面試行程區塊 -->
-<div class="card shadow-sm border-info">
-    <div class="card-header bg-info text-dark fw-bold">
-        <i class="bi bi-calendar-event"></i> 近期面試行事曆 (即將到來)
-    </div>
-    <div class="card-body p-0">
-        @if (Model.UpcomingInterviews.Any())
-        {
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>日期時間</th>
-                        <th>公司名稱</th>
-                        <th>面試關卡</th>
-                        <th>面試方式</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var evt in Model.UpcomingInterviews)
-                    {
-                        <tr>
-                            <!-- 距離越近的面試，可以用文字顏色來突顯 -->
-                            <td class="fw-bold text-danger">@evt.InterviewDate.ToString("MM/dd (ddd) HH:mm")</td>
-                            <td class="fw-bold">@evt.JobApplication?.CompanyName</td>
-                            <td>@evt.Round</td>
-                            <td>@evt.InterviewType</td>
-                            <td>
-                                <a asp-controller="JobApplications" asp-action="Details" asp-route-id="@evt.JobApplicationId" class="btn btn-sm btn-outline-primary">
-                                    查看職缺
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-        else
-        {
-            <div class="p-4 text-center text-muted">
-                目前沒有即將到來的面試行程，繼續努力投遞吧！
+<div class="row">
+    <!-- 左側：Chart.js 狀態分佈圖 -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-secondary h-100">
+            <div class="card-header bg-secondary text-white fw-bold">
+                <i class="bi bi-pie-chart-fill"></i> 投遞狀態分佈
             </div>
-        }
+            <div class="card-body d-flex justify-content-center align-items-center">
+                <!-- 繪製圖表專用的畫布 (Canvas) -->
+                <div style="position: relative; height:280px; width:100%">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右側：近期面試行事曆 -->
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm border-info h-100">
+            <div class="card-header bg-info text-dark fw-bold">
+                <i class="bi bi-calendar-event"></i> 近期面試行事曆 (即將到來)
+            </div>
+            <div class="card-body p-0">
+                @if (Model.UpcomingInterviews.Any())
+                {
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>日期時間</th>
+                                <th>公司名稱</th>
+                                <th>面試關卡</th>
+                                <th>方式</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var evt in Model.UpcomingInterviews)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-danger">@evt.InterviewDate.ToString("MM/dd HH:mm")</td>
+                                    <td class="fw-bold">@evt.JobApplication?.CompanyName</td>
+                                    <td>@evt.Round</td>
+                                    <td>@evt.InterviewType</td>
+                                    <td>
+                                        <a asp-controller="JobApplications" asp-action="Details" asp-route-id="@evt.JobApplicationId" class="btn btn-sm btn-outline-primary">
+                                            查看職缺
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="p-4 text-center text-muted">
+                        目前沒有即將到來的面試行程，繼續努力投遞吧！
+                    </div>
+                }
+            </div>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <!-- 引入 Chart.js 核心套件 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // 亮點：利用 Razor 語法將 C# 變數直接注入 JavaScript 陣列中
+        const chartData = [
+                    @Model.OfferedCount,
+                    @Model.InterviewingCount,
+                    @Model.RejectedCount,
+            @othersCount
+        ];
+
+        // 檢查如果全部都是 0，就顯示提示避免畫出空圖表
+        const total = chartData.reduce((a, b) => a + b, 0);
+
+        if (total > 0) {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            new Chart(ctx, {
+                // 這裡改用 'doughnut' (甜甜圈圖)，在商務儀表板的視覺表現上比傳統 'pie' (圓餅圖) 更現代、俐落
+                type: 'doughnut',
+                data: {
+                    labels: ['成功錄取', '面試進行中', '未錄取', '投遞/審查中'],
+                    datasets: [{
+                        data: chartData,
+                        backgroundColor: [
+                            '#198754', // Bootstrap Success
+                            '#ffc107', // Bootstrap Warning
+                            '#6c757d', // Bootstrap Secondary
+                            '#0d6efd'  // Bootstrap Primary
+                        ],
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            // 防呆處理：沒有資料時的顯示
+            document.getElementById('statusChart').outerHTML = "<p class='text-muted mt-5'>尚無投遞資料可供分析</p>";
+        }
+    </script>
+}

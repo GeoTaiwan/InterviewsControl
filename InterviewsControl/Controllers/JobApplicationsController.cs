@@ -1,11 +1,13 @@
 using InterviewsControl.Data;
 using InterviewsControl.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace InterviewsControl.Controllers
 {
+    [Authorize]
     public class JobApplicationsController : Controller
     {
         private readonly ApplicationDbContext _context;
