@@ -91,9 +91,20 @@
                                     <td>@evt.Round</td>
                                     <td>@evt.InterviewType</td>
                                     <td>
-                                        <a asp-controller="JobApplications" asp-action="Details" asp-route-id="@evt.JobApplicationId" class="btn btn-sm btn-outline-primary">
-                                            查看職缺
-                                        </a>
+                                        @if (User.Identity.IsAuthenticated)
+                                        {
+                                            <!-- 如果已登入，顯示正常的連結按鈕 -->
+                                            <a asp-controller="JobApplications" asp-action="Details" asp-route-id="@evt.JobApplicationId" class="btn btn-sm btn-outline-primary">
+                                                查看職缺
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <!-- 如果未登入（例如面試官），顯示帶有鎖頭圖示的灰色標籤，清楚告知這是管理權限 -->
+                                            <span class="badge bg-light text-muted border shadow-sm px-2 py-1" style="cursor: help;" title="需登入系統管理員帳號才可查看明細">
+                                                <i class="bi bi-lock-fill"></i> 管理員專屬
+                                            </span>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -118,9 +129,9 @@
     <script>
         // 亮點：利用 Razor 語法將 C# 變數直接注入 JavaScript 陣列中
         const chartData = [
-                    @Model.OfferedCount,
-                    @Model.InterviewingCount,
-                    @Model.RejectedCount,
+                            @Model.OfferedCount,
+                            @Model.InterviewingCount,
+                            @Model.RejectedCount,
             @othersCount
         ];
 
